@@ -13,7 +13,7 @@ const Footer:React.FC = () =>{
                     <p className="text-gray-500 mb-4">
                         Be the first to hear about new products, exclusive events, and online offers.
                     </p>
-                    <p className="font-medium text-sm text-gray-600">
+                    <p className="font-medium text-sm text-gray-600 p-3">
                         Sign up and get 10% off your first order.
                     </p>
 
