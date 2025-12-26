@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { HiOutlineUser, HiOutlineShoppingBag, HiBars3BottomRight } from "react-icons/hi2";
 import SearchBar from "./Searchbar";
 import CartDrawer from "../Layout/CartDrawer";
-import React, { useState } from "react"; 
+import { useState } from "react"; 
 import { IoMdClose } from "react-icons/io";
 
 const Navbar: React.FC = () => {
@@ -29,16 +29,28 @@ const Navbar: React.FC = () => {
                 </div>
                 {/**Center - Navigation Links */}
                 <div className="hidden md:flex space-x-6">
-                    <Link to="#" className="text-gray-700 hover:text-black text-sm font-medium uppercase">
+                    <Link 
+                        to="/collections/all" 
+                        className="text-gray-700 hover:text-black text-sm font-medium uppercase"
+                    >
                         Men
                     </Link>
-                    <Link to="#" className="text-gray-700 hover:text-black text-sm font-medium uppercase">
+                    <Link 
+                        to="#" 
+                        className="text-gray-700 hover:text-black text-sm font-medium uppercase"
+                    >
                         Women
                     </Link>
-                    <Link to="#" className="text-gray-700 hover:text-black text-sm font-medium uppercase">
+                    <Link 
+                        to="#" 
+                        className="text-gray-700 hover:text-black text-sm font-medium uppercase"
+                    >
                         Top Wear
                     </Link>
-                    <Link to="#" className="text-gray-700 hover:text-black text-sm font-medium uppercase">
+                    <Link 
+                        to="#" 
+                        className="text-gray-700 hover:text-black text-sm font-medium uppercase"
+                    >
                         Bottom Wear
                     </Link>
                 </div>
