@@ -158,7 +158,7 @@
 
 import { useState, ChangeEvent, FormEvent } from "react";
 
-/* ---------- Types ---------- */
+
 interface User {
   _id: number;
   name: string;
@@ -173,7 +173,6 @@ interface FormData {
   role: "admin" | "customer";
 }
 
-/* ---------- Component ---------- */
 const UserManagement: React.FC = () => {
   const users: User[] = [
     {
@@ -191,7 +190,7 @@ const UserManagement: React.FC = () => {
     role: "customer",
   });
 
-  /* ---------- Handlers ---------- */
+
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ): void => {
@@ -228,7 +227,7 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  /* ---------- JSX ---------- */
+
   return (
     <div className="max-w-7xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">User Management</h2>
