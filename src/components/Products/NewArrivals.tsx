@@ -1,6 +1,12 @@
 import { FC, useEffect, useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import axios from "axios";
+
+interface ProductImage {
+    url: string;
+    altText: string;
+}
 
 const NewArrivals: FC = () => {
     const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -11,102 +17,37 @@ const NewArrivals: FC = () => {
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(true);
 
-    const newArrivals = [
-        { 
-            _id: "1", 
-            name: "Stylish Jacket", 
-            price: 3500, 
-            images: [
-                { 
-                    url: "https://picsum.photos/500/500?random=1", 
-                    altText: "Stylish Jacket" 
-                }
-            ] 
-        },
+    const [newArrivals, setNewArrivals] = useState([])
 
-        { 
-            _id: "2", 
-            name: "Stylish Jacket", 
-            price: 3500, 
-            images: [
-                { 
-                    url: "https://picsum.photos/500/500?random=2", 
-                    altText: "Stylish Jacket" 
-                }
-            ]
-        },
+    useEffect(() => {
+    const fetchNewArrivals = async () => {
+      try {
+        setLoading(true);
 
-        { 
-            _id: "3", 
-            name: "Stylish Jacket", 
-            price: 3500, 
-            images: [
-                { 
-                    url: "https://picsum.photos/500/500?random=3", 
-                    altText: "Stylish Jacket" 
-                }
-            ] 
-        },
+        const response = await axios.get<Product[]>(
+          `${import.meta.env.VITE_BACKEND_URL}/api/product/new-arrivals`
+        );
 
-        { 
-            _id: "4", 
-            name: "Stylish Jacket", 
-            price: 3500, 
-            images: [
-                { 
-                    url: "https://picsum.photos/500/500?random=4", 
-                    altText: "Stylish Jacket" 
-                }
-            ] 
-        },
+        const validProducts: Product[] = response.data
+          .map((product) => ({
+            ...product,
+            images:
+              product.images?.filter(
+                (img) => img.url && img.url.trim() !== ""
+              ) || [],
+          }))
+          .filter((product) => product.images.length > 0);
 
-        { 
-            _id: "5", 
-            name: "Stylish Jacket", 
-            price: 3500, 
-            images: [
-                { 
-                    url: "https://picsum.photos/500/500?random=5", 
-                    altText: "Stylish Jacket" 
-                }
-            ] 
-        },
+        setNewArrivals(validProducts);
+      } catch (error) {
+        console.error("Failed to fetch new arrivals:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        { 
-            _id: "6", 
-            name: "Stylish Jacket", 
-            price: 3500, 
-            images: [
-                { 
-                    url: "https://picsum.photos/500/500?random=6", 
-                    altText: "Stylish Jacket" 
-                }
-            ] 
-        },
-
-        { 
-            _id: "7", 
-            name: "Stylish Jacket", 
-            price: 3500, images: [
-                { 
-                    url: "https://picsum.photos/500/500?random=7", 
-                    altText: "Stylish Jacket" 
-                }
-            ] 
-        },
-
-        { 
-            _id: "8", 
-            name: "Stylish Jacket", 
-            price: 3500, 
-            images: [
-                { 
-                    url: "https://picsum.photos/500/500?random=8", 
-                    altText: "Stylish Jacket" 
-                }
-            ] 
-        }
-    ];
+    fetchNewArrivals();
+  }, []);
 
     // MOUSE DRAG
     const handleMouseDown = (e: React.MouseEvent) => {
