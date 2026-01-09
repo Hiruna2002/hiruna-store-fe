@@ -1,13 +1,34 @@
-import { useState } from "react"
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react"
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import login from "../assets/login.webp"
 import { loginUser } from "../redux/slices/authSlice";
-import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { mergeCart } from "../redux/slices/cartSlice";
+import { useAppDispatch } from '../hooks';
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("")
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
+    const navigate = useNavigate();
+    const location = useLocation(); 
+    const {user , guestId} = useSelector((state:any) => state.auth);
+    const {cart} = useSelector((state:any) => state.cart);
+
+    const redirect = new URLSearchParams(location.search).get("redirect") || "/";
+    const isCheckoutRedirect = redirect.includes("checkout");
+
+    useEffect(() => {
+    if (user) {
+      if (cart?.products.length > 0 && guestId) {
+        dispatch(mergeCart({ guestId, userId: user._id })).then(() => {
+          navigate(isCheckoutRedirect ? "/checkout" : "/");
+        });
+      } else {
+        navigate(isCheckoutRedirect ? "/checkout" : "/");
+      }
+    }
+  }, [user, guestId, cart, dispatch, navigate, isCheckoutRedirect]);
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,7 +70,9 @@ const Login = () => {
                 font-semibold hover:bg-gray-800">Sign In</button>
                 <p className="mt-6 text-center text-sm">
                     Don't have an account?{" "}
-                    <Link to={"/register"} className="text-blue-500">Register</Link>
+                    <Link 
+                        to={`/register?redirect=${encodeURIComponent(redirect)}`} 
+                        className="text-blue-500">Register</Link>
                 </p>
             </form>
         </div>

@@ -1,9 +1,11 @@
-import { FC, useState, ChangeEvent, FormEvent } from "react";
+import { FC, useState, ChangeEvent, FormEvent, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { createCheckout } from "../../redux/slices/checkoutSlice";
+import { useAppSelector } from '../../hooks';
+import { useAppDispatch } from '../../hooks';
 
-/* =======================
-   Types
-======================= */
+
 
 interface CartProduct {
     name: string;
@@ -28,38 +30,13 @@ interface ShippingAddress {
     phone: string;
 }
 
-/* =======================
-   Mock Cart
-======================= */
-
-const Cart: CartType = {
-    products: [
-        {
-            name: "Stylish Jacket",
-            size: "M",
-            color: "Black",
-            price: 1500,
-            image: "https://picsum.photos/150?random=1",
-        },
-        {
-            name: "Casual Sneakers",
-            size: "42",
-            color: "White",
-            price: 3200,
-            image: "https://picsum.photos/150?random=2",
-        },
-    ],
-    totalPrice: 4700,
-};
-
-/* =======================
-   Component
-======================= */
-
 const Checkout: FC = () => {
     const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+    const {cart,loading,error} = useAppSelector((state) => state.cart);
+    const {user} = useAppSelector((state) => state.auth);
 
-    const [checkoutId, setCheckoutId] = useState<number | null>(null);
+    const [checkoutId, setCheckoutId] = useState<string | null>(null);
 
     const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
         firstName: "",
@@ -71,16 +48,58 @@ const Checkout: FC = () => {
         phone: "",
     });
 
-    const handleCreateCheckout = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setCheckoutId(123); // simulate checkout creation
-        // navigate("/order-confirmation");
-    };
+     useEffect(() => {
+    if (!cart || !cart.products || cart.products.length === 0) {
+      navigate("/");
+    }
+  }, [cart, navigate]);
 
-    // const handlePaymentSuccess = (details) => { 
-    //     console.log("Payment Successful"); 
-    //     navigate("/order-confirmation") 
-    // }
+//    const handleCreateCheckout = async(e: React.FormEvent) => {
+//         e.preventDefault();
+//         if(cart && cart.products.length > 0){
+//             const res = dispatch(
+//                 createCheckout({
+//                     checkoutItems: cart.products,
+//                     shippingAddress,
+//                     paymentMethod: "Credit/Debit Card",
+//                     totalPrice: cart.totalPrice,
+//                 })
+//             )
+//             if((await res).payload && (await res).payload._id){
+//                 setCheckoutId((await res).payload._id);
+//             }
+//         }
+//     }
+
+    const handleCreateCheckout = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!cart || cart.products.length === 0) return;
+
+        const checkoutItems = cart.products.map(item => ({
+            productId: item.productId,
+            name: item.name ?? "Unknown Product",
+            image: item.image ?? "/images/placeholder.png",
+            price: item.price ?? 0,
+            quantity: item.quantity,
+        }));
+
+        const actionResult = await dispatch(
+            createCheckout({
+            checkoutItems,
+            shippingAddress,
+            paymentMethod: "Credit/Debit Card",
+            totalPrice: cart.totalPrice,
+            })
+        );
+
+        if (createCheckout.fulfilled.match(actionResult)) {
+            const checkout = actionResult.payload;
+            if (checkout?._id) {
+            setCheckoutId(checkout._id);
+            }
+        }
+    };
 
     const handleInputChange =
         (field: keyof ShippingAddress) =>
@@ -104,7 +123,7 @@ const Checkout: FC = () => {
                         <label className="block text-gray-700">Email</label>
                         <input
                             type="email"
-                            value="user@example.com"
+                            value={user?.email || ""}
                             className="w-full p-2 border rounded"
                             disabled
                         />
@@ -215,7 +234,7 @@ const Checkout: FC = () => {
                 <h3 className="text-lg mb-4">Order Summary</h3>
 
                 <div className="border-t py-4 mb-4">
-                    {Cart.products.map((product, index) => (
+                    {cart.products.map((product, index) => (
                         <div
                             key={index}
                             className="flex items-start justify-between py-2 border-b"
@@ -243,7 +262,7 @@ const Checkout: FC = () => {
 
                 <div className="flex justify-between text-lg mb-4">
                     <p>Subtotal</p>
-                    <p>Rs.{Cart.totalPrice.toLocaleString()}</p>
+                    <p>Rs.{cart.totalPrice.toLocaleString()}</p>
                 </div>
 
                 <div className="flex justify-between text-lg">
@@ -253,7 +272,7 @@ const Checkout: FC = () => {
 
                 <div className="flex justify-between text-lg mt-4 border-t pt-4">
                     <p>Total</p>
-                    <p>Rs.{Cart.totalPrice.toLocaleString()}</p>
+                    <p>Rs.{cart.totalPrice.toLocaleString()}</p>
                 </div>
             </div>
         </div>

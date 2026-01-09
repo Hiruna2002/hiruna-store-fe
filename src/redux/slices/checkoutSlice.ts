@@ -26,6 +26,8 @@ interface CheckoutResponse {
     image: string;
     price: number;
     quantity: number;
+    size?: string;
+    color?: string;
   }[];
   shippingAddress: ShippingAddress;
   paymentMethod?: string;

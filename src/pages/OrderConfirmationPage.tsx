@@ -1,4 +1,8 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { clearCart } from "../redux/slices/cartSlice";
+import { useAppSelector } from '../hooks';
 
 interface CheckoutItem {
     productId: string;
@@ -23,42 +27,40 @@ interface Checkout {
     shippingAddress: ShippingAddress;
 }
 
-const checkout: Checkout = {
-    _id: "12323",
-    createdAt: new Date(),
-    checkoutItems: [
-        {
-            productId: "1",
-            name: "Jacket",
-            color: "black",
-            size: "M",
-            price: 3500,
-            qty: 1,
-            image: "https://picsum.photos/150?random=1",
-        },
-        {
-            productId: "2",
-            name: "T-Shirt",
-            color: "black",
-            size: "M",
-            price: 3200,
-            qty: 1,
-            image: "https://picsum.photos/150?random=2",
-        },
-    ],
-    shippingAddress: {
-        address: "67/H/1, Samagi Mawatha",
-        city: "Panadura",
-        country: "Sri Lanka",
-    },
-};
+
 
 
 
 const OrderConfirmationPage: FC = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const {checkout} = useAppSelector((state) => state.checkout);
 
-    const calculateEstimatedDelivery = (createdAt: Date): string => {
+     useEffect(() => {
+        if (checkout?._id) {
+            dispatch(clearCart())
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem("cart")
+            }
+        } else {
+            navigate("/my-orders")
+        }
+    }, [checkout, dispatch, navigate])
+
+
+    // const calculateEstimatedDelivery = (createdAt: Date): string => {
+    //     const orderDate = new Date(createdAt);
+    //     orderDate.setDate(orderDate.getDate() + 10);
+    //     return orderDate.toLocaleDateString();
+    // };
+
+    const calculateEstimatedDelivery = (createdAt?: Date | string): string => {
+        if (!createdAt) return "—";
+
         const orderDate = new Date(createdAt);
+        // invalid date එකක් නම්
+        if (isNaN(orderDate.getTime())) return "—";
+
         orderDate.setDate(orderDate.getDate() + 10);
         return orderDate.toLocaleDateString();
     };
@@ -79,14 +81,15 @@ const OrderConfirmationPage: FC = () => {
                             </h2>
                             <p className="text-gray-500">
                                 Order Date:{" "}
-                                {new Date(checkout.createdAt).toLocaleDateString()}
+                                {checkout?.createdAt 
+                                    ? new Date(checkout.createdAt).toLocaleDateString() 
+                                    : "Loading..."}
                             </p>
                         </div>
 
                         <div>
                             <p className="text-emerald-700 text-sm">
-                                Estimated Delivery:{" "}
-                                {calculateEstimatedDelivery(checkout.createdAt)}
+                                Estimated Delivery: {calculateEstimatedDelivery(checkout?.createdAt)}
                             </p>
                         </div>
                     </div>
@@ -116,7 +119,7 @@ const OrderConfirmationPage: FC = () => {
                                 <div className="ml-auto text-right">
                                     <p className="text-md">Rs.{item.price}</p>
                                     <p className="text-sm text-gray-500">
-                                        Qty: {item.qty}
+                                        Qty: {item.quantity}
                                     </p>
                                 </div>
                             </div>

@@ -1,7 +1,29 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import MyOrdersPage from "./MyOrdersPage";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logout } from "../redux/slices/authSlice";
+import { clearCart } from "../redux/slices/cartSlice";
+import { useAppSelector } from '../hooks';
+
 
 const Profile: FC = () => {
+    const {user} = useAppSelector((state) => state.auth)
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+     useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    dispatch(clearCart());
+    navigate('/login');
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex-grow container mx-auto p-4 md:p-6">
@@ -10,13 +32,14 @@ const Profile: FC = () => {
           <div className="w-full md:w-1/3 lg:w-1/4 shadow-md rounded-lg p-6">
           {/* <div className="w-full max-w-md mx-auto shadow-md rounded-lg p-6"> */}
             <h1 className="text-2xl md:text-3xl font-bold mb-4">
-              Chehan Silva
+              {user?.name || 'User'}
             </h1>
             <p className="text-lg text-gray-600 mb-4">
-              chechanSilva@gmail.com
+              {user?.email || 'chechanSilva@gmail.com'}
             </p>
             <button
               type="button"
+              onClick={handleLogout}
               className="w-full bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
             >
               Logout

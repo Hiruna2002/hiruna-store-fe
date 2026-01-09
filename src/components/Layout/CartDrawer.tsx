@@ -2,6 +2,7 @@ import { useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import CartContents from "../Cart/CartContents";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 interface CartDrawerProps {
     drawerOpen: boolean;
@@ -10,9 +11,17 @@ interface CartDrawerProps {
 
 const CartDrawer: React.FC<CartDrawerProps> = ({drawerOpen, toggleCartDrawer}) => {
     const navigate = useNavigate();
+    const {user , guestId} = useSelector((state:any) => state.auth);
+    const {cart} = useSelector((state:any) => state.cart);
+    const userId = user ? user._id : null;
     const handleCheckout = () => {
         toggleCartDrawer();
-        navigate("/checkout");
+        if(!user){
+             navigate("/login?redirect = checkout");
+
+        }else{
+            navigate("/checkout");
+        }
     };
 
     return (
@@ -30,12 +39,18 @@ const CartDrawer: React.FC<CartDrawerProps> = ({drawerOpen, toggleCartDrawer}) =
 
         {/* {Cart contents with scrollable area} */}
         <div className="flex-grow p-4 overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4"></h2>
-            <CartContents />
+            <h2 className="text-xl font-semibold mb-4">Your Cart</h2>
+            {cart && cart.items && cart.items.length > 0 ? (
+                <CartContents  cart={cart} userId={userId} guestId={guestId} />
+            ) : (
+                <p className="text-gray-500">Your cart is empty.</p>
+            )}
         </div>
 
         {/* {Checked out button fixed at the Bottom} */}
         <div className="p-4 bg-white sticky bottom-o">
+            {cart && cart.items && cart.items.length > 0 && (
+                <>
             <button 
                 onClick={handleCheckout}
                 className="w-full bg-black text-white py-3 rounded-lg font-semibold 
@@ -45,6 +60,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({drawerOpen, toggleCartDrawer}) =
             <p className="text-sm tracking-tighter text-gray-500 mt-2 text-center">
                 Shipping, taxes and discount codes calculated at Checkout.
             </p>
+                </>
+            )}
+            
         </div>
 
     </div>);

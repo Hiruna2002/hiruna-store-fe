@@ -1,5 +1,9 @@
 import { FC, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
+import { fetchOrderDetails } from "../redux/slices/orderSlice";
+import { useAppSelector } from '../hooks';
+import { useAppDispatch } from '../hooks';
 
 interface OrderItem {
     productId: string;
@@ -27,42 +31,16 @@ interface OrderDetails {
 
 const OrderDetailsPage: FC = () => {
     const { id } = useParams<{ id: string }>();
-    const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
+    const dispatch = useAppDispatch();
+    const {orderDetails, loading, error} = useAppSelector((state) => state.orders);
 
     useEffect(() => {
-        if (!id) return;
+        dispatch(fetchOrderDetails(id!));
+    }, [dispatch, id]);
 
-        const mockOrderDetails: OrderDetails = {
-            _id: id,
-            createdAt: new Date(),
-            isPaid: true,
-            isDelivered: false,
-            paymentMethod: "Credit/Debit Card",
-            shippingMethod: "Standard",
-            shippingAddress: {
-                city: "Panadura",
-                country: "Sri Lanka",
-            },
-            orderItems: [
-                {
-                    productId: "1",
-                    name: "Jacket",
-                    price: 3500,
-                    qty: 1,
-                    image: "https://picsum.photos/150?random=1",
-                },
-                {
-                    productId: "2",
-                    name: "Shirt",
-                    price: 3000,
-                    qty: 1,
-                    image: "https://picsum.photos/150?random=2",
-                },
-            ],
-        };
+    if (loading) return <p>Loading...</p>;
+    if (error) return <p>Error: {error}</p>;
 
-        setOrderDetails(mockOrderDetails);
-    }, [id]);
 
     return (
         <div className="max-w-7xl mx-auto p-4 sm:p-6">
@@ -160,7 +138,7 @@ const OrderDetailsPage: FC = () => {
                             </thead>
 
                             <tbody>
-                                {orderDetails.orderItems.map((item) => (
+                                {orderDetails.orderItems.map((item: OrderItem) => (
                                     <tr
                                         key={item.productId}
                                         className="border-b"
