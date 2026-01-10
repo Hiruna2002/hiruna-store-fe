@@ -463,14 +463,13 @@ const NewArrivals: FC = () => {
 
   useEffect(() => {
     const fetchNewArrivals = async () => {
+      
       try {
         setLoading(true);
 
-        // const response = await axios.get(
-        //   `${import.meta.env.VITE_BACKEND_URL}/api/products/new-arrivals`
-        // );
-
-        const response = await axios.get("/api/products/new-arrivals");
+        const response = await axios.get(
+          'http://localhost:9000/api/products/new-arrivals'   
+        );
 
         console.log("NEW ARRIVALS API RESPONSE 👉", response.data);
 

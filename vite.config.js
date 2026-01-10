@@ -14,6 +14,26 @@
 //   plugins: [react()],
 // });
 
+// import { defineConfig } from 'vite'
+// import react from '@vitejs/plugin-react'
+
+
+// export default defineConfig({
+//   plugins: [react()],
+
+//   server: {
+//     proxy: {
+      
+//       '/api': {
+//         target: 'http://localhost:9000',
+//         changeOrigin: true,
+        
+//       }
+//     }
+//   }
+// })
+
+// vite.config.js  (හෝ vite.config.ts)
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -23,13 +43,13 @@ export default defineConfig({
 
   server: {
     proxy: {
-      // All requests that start with /api  → go to backend
+      // All requests starting with /api will be proxied to backend
       '/api': {
         target: 'http://localhost:9000',
         changeOrigin: true,
-        // optional: rewrite (if your backend doesn't have /api prefix)
-        // rewrite: (path) => path.replace(/^\/api/, '')
-      }
-    }
-  }
+        secure: false,              // development වලදී HTTPS නැති නිසා
+        rewrite: (path) => path.replace(/^\/api/, ''),   // optional - ඕන නැත්නම් remove කරන්න
+      },
+    },
+  },
 })

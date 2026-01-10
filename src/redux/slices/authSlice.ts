@@ -53,7 +53,7 @@ export const loginUser = createAsyncThunk<
 >("auth/loginUser", async (userData, { rejectWithValue }) => {
   try {
     const { data } = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/api/users/login`,
+      `http://localhost:9000/api/users/login`,
       userData
     );
 
@@ -77,7 +77,7 @@ export const registerUser = createAsyncThunk<
 >("auth/registerUser", async (userData, { rejectWithValue }) => {
   try {
     const { data } = await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/api/users/register`,
+      `http://localhost:9000/api/users/register`,
       userData
     );
 

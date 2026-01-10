@@ -94,7 +94,7 @@ export interface Product {
   _id: string;
   name: string;
   price: number;
-  images: { url: string; altText?: string }[];
+  images?: { url: string; altText?: string }[];
 }
 
 const ProductGrid: React.FC<{ products: Product[]; loading: boolean; error: string | null }> = ({ products, loading, error }) => {
@@ -105,6 +105,13 @@ const ProductGrid: React.FC<{ products: Product[]; loading: boolean; error: stri
   if (error) {
     return <p>Error: {error}</p>;
   }
+
+  console.log("All products:", products);
+
+  products.forEach((product, index) => {
+    console.log(`Product ${index + 1} (${product.name}):`, product.images);
+  });
+
   return (
     <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6'>
       {products.map((product) => (
@@ -112,8 +119,8 @@ const ProductGrid: React.FC<{ products: Product[]; loading: boolean; error: stri
           <div className='bg-white p-4 rounded-lg'>
             <div className='w-full h-96 mb-4'>
               <img
-                src={product.images[0]?.url}
-                alt={product.images[0]?.altText || product.name}
+                src={product.images?.[0]?.url || '/images/placeholder-product.jpg'}
+                alt={product.images?.[0]?.altText || product.name}
                 className='w-full h-full object-cover rounded-lg'
               />
             </div>
